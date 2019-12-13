@@ -1,0 +1,28 @@
+{
+  "name": "live_app_template",
+  "version": "1.0.0",
+  "description": "### LiveAppTemplate",
+  "main": "index.js",
+  "scripts": {
+    "test": "cd front && npm test && cd ../back && npm test",
+    "back": "cd back && npm start",
+    "front": "cd front && npm start",
+    "start": "concurrently --kill-others-on-fail --names \"back,front\" \"npm run back\" \"npm run front\"",
+    "postinstall": "cd front && npm install && cd .. && cd back && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/callmephil/LiveApp-Template.git"
+  },
+  "keywords": [],
+  "author": "Callmephil",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/callmephil/LiveApp-Template/issues"
+  },
+  "homepage": "https://github.com/callmephil/LiveApp-Template.git#readme",
+  "dependencies": {
+    "concurrently": "^5.0.0",
+    "lodash": "^4.17.15"
+  }
+}
