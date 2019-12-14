@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import AxiosUtils from "../Services/AxiosUtils";
+import AxiosUtils from "./AxiosUtils";
 
 export const MyUsersContext = React.createContext(null);
 
@@ -30,9 +30,9 @@ class UsersContext extends PureComponent {
   fetchList() {
     const cancelToken = this.AxiosUtils.getCancelToken();
     // sleep(1500).then(() =>
-      this.AxiosUtils.onGetAll(null, cancelToken).then(result => {
-        this.setState({ list: result.data.result });
-      })
+    this.AxiosUtils.onGetAll(null, cancelToken).then(result => {
+      this.setState({ list: result.data.result });
+    });
     // );
   }
 
@@ -49,15 +49,13 @@ class UsersContext extends PureComponent {
     const cancelToken = this.AxiosUtils.getCancelToken();
 
     this.AxiosUtils.onUpdate(user_id, data, cancelToken).then(result => {
-      if (result.status === 200) {
-        this.setState(state => {
-          return {
-            list: state.list.map(el =>
-              el["user_id"] === user_id ? { ...el, ...data } : el
-            )
-          };
-        });
-      } else console.log(result);
+      this.setState(state => {
+        return {
+          list: state.list.map(el =>
+            el["user_id"] === user_id ? { ...el, ...data } : el
+          )
+        };
+      });
     });
   };
 
@@ -75,11 +73,9 @@ class UsersContext extends PureComponent {
   _Create = data => {
     const cancelToken = this.AxiosUtils.getCancelToken();
     this.AxiosUtils.onCreate(data, cancelToken).then(result => {
-      if (result.statusText === "Created") {
-        this.setState(state => {
-          return { list: [...state.list, result.data] };
-        });
-      } else console.log(result);
+      this.setState(state => {
+        return { list: [...state.list, result.data] };
+      });
     });
   };
 

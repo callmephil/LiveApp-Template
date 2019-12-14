@@ -1,0 +1,52 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 160px !important;
+    /* Height of the footer */
+    padding: 0;
+
+    background-color: #343a40 !important;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 160px;
+    /* Set the fixed height of the footer here */
+}
+
+/* Override Bootstrap Styling */
+
+/* .btn-primary {
+    background-color: #025fce !important;
+} */
+
+.navbar  {
+    background-color: #f8f9fa;
+}
+
+h1, h2, h3, h4, h5 {
+    color: white !important;
+}
+
+h1 {
+    margin: 1em 0 .5em;
+    border-bottom: 1px solid 
+    #d5d5d5;
+    padding: .1em;
+    font-size: 24px;
+}
+
+h1, h2 {
+    margin: 0 0 .5em;
+}
+
+button:focus,
+button:active {
+    outline: none !important;
+    box-shadow: none !important;
+}

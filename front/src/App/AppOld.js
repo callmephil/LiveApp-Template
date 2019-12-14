@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import UsersContext, { MyUsersContext } from "./Contexts/UsersContext";
-import "./Layout/table.css";
-import "./Layout/grid.css";
-import "./Layout/form.css";
+import UsersContext, { MyUsersContext } from "../Services/UsersContextServices";
+import "../Layout/table.css";
+import "../Layout/grid.css";
+import "../Layout/form.css";
 
 class UsersList extends Component {
   static contextType = MyUsersContext;
