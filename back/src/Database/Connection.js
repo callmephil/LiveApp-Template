@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import { prepareStmt } from "./Modules/PreparedStatement";
 import Users from './Modules/Users';
+import Unicorns from "./Modules/Unicorns";
 
 let Connection;
 const openConnection = () => {
@@ -20,9 +21,11 @@ const getConnection = async () => {
 
     const stmtData = prepareStmt(Connection);
     const usersController = await Users(stmtData);
+    const unicornsController = await Unicorns(stmtData);
 
     const controllers = {
-        usersController,
+      usersController,
+      unicornsController
     };
 
     return controllers;

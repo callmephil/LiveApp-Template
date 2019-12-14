@@ -19,7 +19,3 @@ CREATE TABLE users (
 -- ("Person", "Eight", "P8@mail.com"),
 -- ("Person", "Nine", "P9@mail.com"),
 -- ("Person", "Ten", "P10@mail.com");
-
-
-
-

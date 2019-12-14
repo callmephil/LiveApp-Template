@@ -8,6 +8,14 @@ const queryList = [
     USER_DEL: `DELETE FROM users WHERE user_id = ?`,
     USER_SEL_ID: `SELECT * FROM users WHERE user_id = ?`,
     USER_SEL_ALL: `SELECT *, (first_name || " " || last_name) as full_name FROM users`
+  },
+  // Unicorns
+  {
+    UNICORN_INS: `INSERT INTO users (first_name, last_name, email) VALUES ($first_name, $last_name, $email)`,
+    UNICORN_UPD: `UPDATE users SET first_name = $first_name, last_name = $last_name, email = $email WHERE user_id = @id`,
+    UNICORN_DEL: `DELETE FROM users WHERE user_id = ?`,
+    UNICORN_SEL_ID: `SELECT * FROM users WHERE user_id = ?`,
+    UNICORN_SEL_ALL: `SELECT *, (first_name || " " || last_name) as full_name FROM users`
   }
 ];
 

@@ -2,10 +2,9 @@ import { app, io } from "./app";
 import Connection from "./Database/Connection";
 
 import usersControllerApp from "./Routes/users";
+import unicornsControllerApp from "./Routes/unicorns";
 
-let nextVisitorNumber = 1;
-let onlineClients = new Set();
-
+const onlineClients = new Set();
 function onNewWebsocketConnection(socket) {
   console.info(`Socket ${socket.id} has connected.`);
   onlineClients.add(socket.id);
@@ -18,13 +17,14 @@ function onNewWebsocketConnection(socket) {
 
 const start = async () => {
   const DatabaseControllers = await Connection();
-  const { usersController } = DatabaseControllers;
+  const { usersController, unicornsController } = DatabaseControllers;
 
   app.get("/", (req, res, next) => {
     res.send("hello from the test server");
   });
 
   app.use("/api/users", await usersControllerApp(usersController));
+  app.use("/api/unicorns", await unicornsControllerApp(unicornsController));
 
   app.use((err, req, res, next) => {
     console.error(err);
