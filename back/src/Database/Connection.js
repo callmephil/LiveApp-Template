@@ -20,8 +20,8 @@ const getConnection = async () => {
     if (!Connection) Connection = openConnection();
 
     const stmtData = prepareStmt(Connection);
-    const usersController = await Users(stmtData);
-    const unicornsController = await Unicorns(stmtData);
+    const usersController = await Users(stmtData, Connection);
+    const unicornsController = await Unicorns(stmtData, Connection);
 
     const controllers = {
       usersController,

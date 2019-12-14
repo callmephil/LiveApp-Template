@@ -1,9 +1,9 @@
 import React, { PureComponent } from "react";
 import AxiosUtils from "./AxiosUtils";
 
-export const MyUsersContext = React.createContext(null);
+export const MyUnicornsContext = React.createContext(null);
 
-class UsersContext extends PureComponent {
+class UnicornsContext extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -14,7 +14,7 @@ class UsersContext extends PureComponent {
     };
 
     const setIsLoading = isLoading => this.setState({ isLoading });
-    this.AxiosUtils = new AxiosUtils(setIsLoading, 'users');
+    this.AxiosUtils = new AxiosUtils(setIsLoading, "unicorns");
     this.io = this.AxiosUtils.socket;
     this.io.on("onChangeData", () => this.fetchList());
   }
@@ -31,14 +31,15 @@ class UsersContext extends PureComponent {
     const cancelToken = this.AxiosUtils.getCancelToken();
     // sleep(1500).then(() =>
     this.AxiosUtils.onGetAll(null, cancelToken).then(result => {
-      if (result.data.result)
-      this.setState({ list: result.data.result });
+      if (result.data.result) this.setState({ list: result.data.result });
     });
     // );
   }
 
-  _GetByID = user_id => {
-    const result = this.state.list.find(user => user.user_id === user_id);
+  _GetByID = unicorn_id => {
+    const result = this.state.list.find(
+      unicorn => unicorn.unicorn_id === unicorn_id
+    );
     if (result) this.setState({ isEditMode: true, editData: result });
   };
 
@@ -46,26 +47,26 @@ class UsersContext extends PureComponent {
     this.setState({ isEditMode: false, editData: null });
   };
 
-  _UpdateByID = (user_id, data) => {
+  _UpdateByID = (unicorn_id, data) => {
     const cancelToken = this.AxiosUtils.getCancelToken();
 
-    this.AxiosUtils.onUpdate(user_id, data, cancelToken).then(result => {
+    this.AxiosUtils.onUpdate(unicorn_id, data, cancelToken).then(result => {
       this.setState(state => {
         return {
           list: state.list.map(el =>
-            el["user_id"] === user_id ? { ...el, ...data } : el
+            el["unicorn_id"] === unicorn_id ? { ...el, ...data } : el
           )
         };
       });
     });
   };
 
-  _DeleteByID = user_id => {
+  _DeleteByID = unicorn_id => {
     const cancelToken = this.AxiosUtils.getCancelToken();
-    this.AxiosUtils.onDelete(user_id, cancelToken).then(result => {
+    this.AxiosUtils.onDelete(unicorn_id, cancelToken).then(result => {
       this.setState(state => {
         return {
-          list: state.list.filter(user => user.user_id !== user_id)
+          list: state.list.filter(unicorn => unicorn.unicorn_id !== unicorn_id)
         };
       });
     });
@@ -90,7 +91,6 @@ class UsersContext extends PureComponent {
         this.setState({list: []});
     })
   }
-
   render() {
     const {
       state,
@@ -98,11 +98,11 @@ class UsersContext extends PureComponent {
       _UpdateByID,
       _DeleteByID,
       _Create,
-      _ClearEditMode,
-      _Reset
+      _Reset,
+      _ClearEditMode
     } = this;
     return (
-      <MyUsersContext.Provider
+      <MyUnicornsContext.Provider
         value={{
           state,
           _Create,
@@ -114,9 +114,9 @@ class UsersContext extends PureComponent {
         }}
       >
         {this.props.children}
-      </MyUsersContext.Provider>
+      </MyUnicornsContext.Provider>
     );
   }
 }
 
-export default UsersContext;
+export default UnicornsContext;

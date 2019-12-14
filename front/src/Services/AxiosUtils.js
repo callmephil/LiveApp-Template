@@ -1,23 +1,22 @@
 import axios from "axios";
 import socketIOClient from "socket.io-client";
 
-const API_URL =
-"http://localhost:8080/api/users";
+const API_URL = "http://localhost:8080/api";
 const AxiosConfig = {
-    headers: { "Content-Type": "application/json; charset=utf-8" }
+  headers: { "Content-Type": "application/json; charset=utf-8" }
 };
 const SOCKET_API = socketIOClient("http://localhost:8080");
 
 export default class AxiosUtils {
-  constructor(setIsLoading) {
-    this._route = "";
+  constructor(setIsLoading, route) {
+    this._api_url = `${API_URL}/${route}`;
     this.setIsLoading = setIsLoading;
     this.socket = SOCKET_API;
   }
 
   getSocketIOClient = () => {
     return this.socket;
-  }
+  };
 
   getCancelToken = () => {
     return axios.CancelToken.source();
@@ -26,7 +25,7 @@ export default class AxiosUtils {
   onGetAll = (props, cancelToken) => {
     this.setIsLoading(true);
     return axios
-      .get(API_URL, {
+      .get(this._api_url, {
         ...AxiosConfig,
         params: { props },
         cancelToken: cancelToken.token
@@ -45,7 +44,7 @@ export default class AxiosUtils {
     // Find a way to have it dynamically
     this.setIsLoading(true);
     return axios
-      .get(`${API_URL}/${id}`, {
+      .get(`${this._api_url}/${id}`, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
@@ -62,7 +61,7 @@ export default class AxiosUtils {
   onCreate = (props, cancelToken) => {
     this.setIsLoading(true);
     return axios
-      .post(API_URL, props, {
+      .post(this._api_url, props, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
@@ -79,7 +78,7 @@ export default class AxiosUtils {
   onUpdate = (id, props, cancelToken) => {
     this.setIsLoading(true);
     return axios
-      .patch(`${API_URL}/${id}`, props, {
+      .patch(`${this._api_url}/${id}`, props, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
@@ -96,7 +95,7 @@ export default class AxiosUtils {
   onDelete = (id, cancelToken) => {
     this.setIsLoading(true);
     return axios
-      .delete(`${API_URL}/${id}`, {
+      .delete(`${this._api_url}/${id}`, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
@@ -106,6 +105,22 @@ export default class AxiosUtils {
         else console.log("onDelete Request Failed", err.message);
 
         return { data: [] };
+      })
+      .finally(this.setIsLoading(false));
+  };
+
+  onReset = cancelToken => {
+    this.setIsLoading(true);
+    return axios
+      .delete(`${this._api_url}`, {
+        ...AxiosConfig,
+        cancelToken: cancelToken.token
+      })
+      .catch(err => {
+        if (axios.isCancel(err))
+          console.log("onDelete Request Canceled", err.message);
+        else console.log("onDelete Request Failed", err.message);
+        return { success: false };
       })
       .finally(this.setIsLoading(false));
   };

@@ -27,5 +27,10 @@ export default async controller => {
     const { user_id } = req.params;
     call("deleteUser", user_id, res, next);
   });
+
+  app.delete("/", async (req, res, next) => {
+    call("resetUser", null, res, next);
+  });
+
   return app;
 };

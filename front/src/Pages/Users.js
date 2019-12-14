@@ -1,71 +1,7 @@
 import React, { Component } from "react";
 import UsersContext, { MyUsersContext } from "../Services/UsersContextServices";
+import Table from "../Components/Table/Table";
 
-class UsersList extends Component {
-  static contextType = MyUsersContext;
-  GetColumnData = () => {
-    const { state, _GetByID, _DeleteByID } = this.context;
-    return state.list.map(element => {
-      const { user_id, first_name, last_name, email, creation_date } = element;
-      return (
-        <tr key={user_id}>
-          <td>{user_id}</td>
-          <td>{first_name}</td>
-          <td>{last_name}</td>
-          <td>{email}</td>
-          <td>{creation_date}</td>
-          <td>
-            <div className="container-fluid">
-              <div className="row">
-                <div className="col-6">
-                  <button
-                    className="btn btn-info btn-sm"
-                    onClick={() => _GetByID(user_id)}
-                  >
-                    EDIT
-                  </button>
-                </div>
-                <div className="col-6">
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    onClick={() => _DeleteByID(user_id)}
-                  >
-                    DELETE
-                  </button>
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      );
-    });
-  };
-
-  render() {
-    if (this.context.state.isLoading)
-      return <h3 className="table-fill"> Loading Table Data... </h3>;
-
-    return (
-      <div className="table-responsive">
-        <table className="table table-hover table-dark">
-          <thead style={{ textAlign: "center" }}>
-            <tr>
-              <th>ID</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Email</th>
-              <th>Creation Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody style={{ textAlign: "center" }} className="table-hover">
-            <this.GetColumnData />
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-}
 
 class UsersCreateForm extends Component {
   static contextType = MyUsersContext;
@@ -186,14 +122,30 @@ export default class Users extends Component {
   render() {
     return (
       <UsersContext>
-        <h1> Users </h1>
         <div className="container-fluid">
+          <h1> Users </h1>
           <div className="row">
             <div className="col-8">
-              <h3 className="blockquote text-center">
-                PRECIOUS LIST OF EXISTING USERS
-              </h3>
-              <UsersList />
+              <MyUsersContext.Consumer>
+                {context => (
+                  <Table
+                    list={context.state.list}
+                    _fnGet={context._GetByID}
+                    _fnDelete={context._DeleteByID}
+                    _fnReset={context._Reset}
+                    isLoading={context.state.isLoading}
+                    structure={[
+                      "ID",
+                      "first name",
+                      "last name",
+                      "email",
+                      "creation date"
+                    ]}
+                    isEditMode={true}
+                    title="Precious List Of Existing Users"
+                  />
+                )}
+              </MyUsersContext.Consumer>
             </div>
             <div className="col-4">
               <h3 className="blockquote text-center"> C.R.U.D </h3>

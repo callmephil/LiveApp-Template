@@ -27,5 +27,10 @@ export default async controller => {
     const { unicorn_id } = req.params;
     call("deleteUnicorn", unicorn_id, res, next);
   });
+
+  app.delete("/", async (req, res, next) => {
+    call("resetUnicorns", null, res, next);
+  })
+  
   return app;
 };

@@ -7,15 +7,17 @@ const queryList = [
     USER_UPD: `UPDATE users SET first_name = $first_name, last_name = $last_name, email = $email WHERE user_id = @id`,
     USER_DEL: `DELETE FROM users WHERE user_id = ?`,
     USER_SEL_ID: `SELECT * FROM users WHERE user_id = ?`,
-    USER_SEL_ALL: `SELECT *, (first_name || " " || last_name) as full_name FROM users`
+    USER_SEL_ALL: `SELECT * FROM users`,
+    USER_DEL_ALL: `DELETE FROM users`
   },
   // Unicorns
   {
-    UNICORN_INS: `INSERT INTO users (first_name, last_name, email) VALUES ($first_name, $last_name, $email)`,
-    UNICORN_UPD: `UPDATE users SET first_name = $first_name, last_name = $last_name, email = $email WHERE user_id = @id`,
-    UNICORN_DEL: `DELETE FROM users WHERE user_id = ?`,
-    UNICORN_SEL_ID: `SELECT * FROM users WHERE user_id = ?`,
-    UNICORN_SEL_ALL: `SELECT *, (first_name || " " || last_name) as full_name FROM users`
+    UNICORN_INS: `INSERT INTO unicorns (name, age, color) VALUES ($name, $age, $color)`,
+    UNICORN_UPD: `UPDATE unicorns SET name = $name, age = $age, color = $color WHERE unicorn_id = @id`,
+    UNICORN_DEL: `DELETE FROM unicorns WHERE unicorn_id = ?`,
+    UNICORN_SEL_ID: `SELECT * FROM unicorns WHERE unicorn_id = ?`,
+    UNICORN_SEL_ALL: `SELECT * FROM unicorns`,
+    UNICORN_DEL_ALL: `DELETE FROM unicorns`
   }
 ];
 
@@ -33,6 +35,18 @@ const prepareStmt = db => {
   } catch (e) {
     console.log(`prepareStmt : ${e}`);
   }
+};
+
+const executeTransaction = (db, sqlArray) => {
+  const statements = sqlArray.map(sql => db.prepare(sql));
+  return db.transaction((data = {}) => {
+    let result;
+    for (const stmt of statements) {
+      // if (stmt.reader) result = stmt.get(data);
+      stmt.run(data);
+    }
+    return result;
+  });
 };
 
 const executeToDatabase = stmt => {
@@ -78,6 +92,17 @@ const executeToDatabase = stmt => {
       return result.changes;
     };
 
+    const DELETE_ALL = () => {
+      return stmt.run()
+    }
+
+    const INSERT_ALL = props => {
+      const result = stmt.run({
+        ...props
+      });
+      return result;
+    };
+
     const QueryCenter = {
       SELECT,
       SELECT_ALL,
@@ -85,7 +110,9 @@ const executeToDatabase = stmt => {
       INSERT,
       UPDATE,
       DELETE,
-      DELETE_PROPS
+      DELETE_PROPS,
+      DELETE_ALL,
+      INSERT_ALL
     };
 
     return QueryCenter;
@@ -94,4 +121,4 @@ const executeToDatabase = stmt => {
   }
 };
 
-export { prepareStmt, executeToDatabase };
+export { prepareStmt, executeToDatabase, executeTransaction };
