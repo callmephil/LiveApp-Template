@@ -13,11 +13,7 @@ export default class AxiosUtils {
     this.setIsLoading = setIsLoading;
     this.socket = SOCKET_API;
   }
-
-  getSocketIOClient = () => {
-    return this.socket;
-  };
-
+  
   getCancelToken = () => {
     return axios.CancelToken.source();
   };

@@ -8,14 +8,14 @@ import UsersContext, { MyUsersContext } from "../Services/UsersContextServices";
 
 export default class Dashboard extends Component {
   RenderUnicornTable = () => (
-    <UnicornsContext>
+    <UnicornsContext isViewMode={true}>
       <MyUnicornsContext.Consumer>
         {context => (
           <Table
             list={context.state.list}
             _fnGet={context._GetByID}
-            _fnDelete={context._DeleteByID}
             _fnReset={context._Reset}
+            _fnDelete={context._DeleteByID}
             isLoading={context.state.isLoading}
             title={"Precious List Of Existing Unicorns"}
             structure={["ID", "name", "age", "color", "creation date"]}
@@ -26,12 +26,13 @@ export default class Dashboard extends Component {
   );
 
   RenderUserTable = () => (
-    <UsersContext>
+    <UsersContext isViewMode={true}>
       <MyUsersContext.Consumer>
         {context => (
           <Table
             list={context.state.list}
             _fnGet={context._GetByID}
+            _fnReset={context._Reset}
             _fnDelete={context._DeleteByID}
             isLoading={context.state.isLoading}
             structure={[
@@ -42,7 +43,6 @@ export default class Dashboard extends Component {
               "creation date"
             ]}
             title={"Precious List Of Existing Users"}
-            _fnReset={context._Reset}
           />
         )}
       </MyUsersContext.Consumer>

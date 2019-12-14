@@ -9,6 +9,7 @@ function onNewWebsocketConnection(socket) {
   console.info(`Socket ${socket.id} has connected.`);
   onlineClients.add(socket.id);
 
+
   socket.on("disconnect", () => {
     onlineClients.delete(socket.id);
     console.info(`Socket ${socket.id} has disconnected.`);

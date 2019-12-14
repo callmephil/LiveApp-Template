@@ -64,37 +64,57 @@ const executeToDatabase = stmt => {
     };
 
     const INSERT = props => {
-      io.sockets.emit("onChangeData", "INSERT");
       const result = stmt.run({
         ...props
       });
+
+      console.log(result);
+      if (result.changes === 1) {
+        io.sockets.emit(
+          "CREATE",
+          result.lastInsertRowid,
+          JSON.stringify({ ...props, creation_date: "How?" })
+        );
+        io.sockets.emit("RE_FETCH");
+      }
+
       return result;
     };
 
     const UPDATE = (id, props) => {
       props.id = id;
-      io.sockets.emit("onChangeData", "UPDATE");
       const result = stmt.run({
         ...props
       });
+
+      if (result.changes === 1) {
+        io.sockets.emit("UPDATE", JSON.stringify(props));
+        io.sockets.emit("RE_FETCH");
+      }
       return result.changes;
     };
 
     const DELETE = id => {
       const result = stmt.run(id);
-      io.sockets.emit("onChangeData", "DELETE");
+      if (result.changes === 1) {
+        io.sockets.emit("DELETE", id);
+        io.sockets.emit("RE_FETCH");
+      }
       return result.changes;
     };
 
     const DELETE_PROPS = props => {
       const result = stmt.run({ ...props });
-      io.sockets.emit("onChangeData", "DELETE_PROPS");
+      if (result.changes === 1) {
+        io.sockets.emit("DELETE", JSON.stringify(props));
+        io.sockets.emit("RE_FETCH");
+      }
       return result.changes;
     };
 
     const DELETE_ALL = () => {
-      return stmt.run()
-    }
+      return stmt.run();
+    };
 
     const INSERT_ALL = props => {
       const result = stmt.run({

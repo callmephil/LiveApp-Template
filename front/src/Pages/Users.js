@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import UsersContext, { MyUsersContext } from "../Services/UsersContextServices";
 import Table from "../Components/Table/Table";
 
-
 class UsersCreateForm extends Component {
   static contextType = MyUsersContext;
   state = {
@@ -52,7 +51,8 @@ class UsersCreateForm extends Component {
   };
 
   render() {
-    const { first_name, last_name, email } = this.state;
+    const { first_name, last_name, email, user_id } = this.state;
+    const isSubmitOrEditLabel = user_id ? `Edit - ID: ${user_id}` : "Submit";
     return (
       <form
         className="create-form"
@@ -60,7 +60,6 @@ class UsersCreateForm extends Component {
         onReset={this.handleReset}
       >
         <div className="form-group">
-          {/* <label htmlFor="fname">First Name</label> */}
           <input
             type="text"
             id="fname"
@@ -73,7 +72,6 @@ class UsersCreateForm extends Component {
           />
         </div>
         <div className="form-group">
-          {/* <label htmlFor="flast">Last Name</label> */}
           <input
             id="flast"
             required
@@ -86,7 +84,6 @@ class UsersCreateForm extends Component {
           />
         </div>
         <div className="form-group">
-          {/* <label htmlFor="femail">Email</label> */}
           <input
             id="femail"
             required
@@ -98,17 +95,14 @@ class UsersCreateForm extends Component {
             onChange={this.onChangeValue}
           />
         </div>
-
         <button
           type="submit"
-          value="Submit"
           className="btn btn-success btn-lg btn-block btn-sm"
         >
-          Submit
+          {isSubmitOrEditLabel}
         </button>
         <button
           type="reset"
-          value="Reset"
           className="btn btn-warning btn-lg btn-block btn-sm"
         >
           Clear
@@ -121,7 +115,7 @@ class UsersCreateForm extends Component {
 export default class Users extends Component {
   render() {
     return (
-      <UsersContext>
+      <UsersContext isViewMode={false}>
         <div className="container-fluid">
           <h1> Users </h1>
           <div className="row">

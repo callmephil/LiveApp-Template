@@ -38,7 +38,6 @@ class UnicornsCreateForm extends Component {
 
   onChangeValue = event => {
     const { name, value, type } = event.target;
-    if (!value) return null;
 
     if (type === "number") this.setState({ [name]: Number(value) });
     else this.setState({ [name]: value });
@@ -56,7 +55,8 @@ class UnicornsCreateForm extends Component {
   };
 
   render() {
-    const { name, age, color } = this.state;
+    const { name, age, color, unicorn_id } = this.state;
+    const isSubmitOrEditLabel =  unicorn_id ? `Edit - ID: ${unicorn_id}` : "Submit";
     return (
       <form
         className="create-form"
@@ -104,14 +104,12 @@ class UnicornsCreateForm extends Component {
 
         <button
           type="submit"
-          value="Submit"
           className="btn btn-success btn-lg btn-block btn-sm"
         >
-          Submit
+          {isSubmitOrEditLabel}
         </button>
         <button
           type="reset"
-          value="Reset"
           className="btn btn-warning btn-lg btn-block btn-sm"
         >
           Clear
@@ -124,7 +122,7 @@ class UnicornsCreateForm extends Component {
 export default class Unicorns extends Component {
   render() {
     return (
-      <UnicornsContext>
+      <UnicornsContext isViewMode={false}>
         <div className="container-fluid">
           <h1> Unicorns </h1>
           <div className="row">
@@ -139,7 +137,7 @@ export default class Unicorns extends Component {
                     isLoading={context.state.isLoading}
                     structure={["ID", "name", "age", "color", "creation date"]}
                     isEditMode={true}
-                    title="Precious List Of Existing Users"
+                    title="Precious List Of Existing Unicorns"
                   />
                 )}
               </MyUnicornsContext.Consumer>
