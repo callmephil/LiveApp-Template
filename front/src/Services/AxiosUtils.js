@@ -7,117 +7,116 @@ const AxiosConfig = {
 };
 const SOCKET_API = socketIOClient("http://localhost:8080");
 
+export const sleep = milliseconds => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
+};
+
+const handleCatch = err => {
+  if (axios.isCancel(err)) console.info("Request Canceled", err.message);
+  else console.error("Request Failed", err.message);
+
+  return { data: [] };
+};
+
 export default class AxiosUtils {
-  constructor(setIsLoading, route) {
+  constructor(setLoading, route) {
     this._api_url = `${API_URL}/${route}`;
-    this.setIsLoading = setIsLoading;
+    this.setLoading = setLoading;
     this.socket = SOCKET_API;
   }
-  
+
   getCancelToken = () => {
     return axios.CancelToken.source();
   };
 
-  onGetAll = (props, cancelToken) => {
-    this.setIsLoading(true);
-    return axios
+  onGetAll = async (params, cancelToken) => {
+    this.setLoading(true);
+    const response = await axios
       .get(this._api_url, {
         ...AxiosConfig,
-        params: { props },
+        params,
         cancelToken: cancelToken.token
       })
       .catch(err => {
-        if (axios.isCancel(err))
-          console.log("onGetAll Request Canceled", err.message);
-        else console.log("onGetAll Request Failed", err.message);
-
-        return { data: [] };
+        handleCatch(err);
       })
-      .finally(this.setIsLoading(false));
+      .finally(() => sleep(1000).then(() => this.setLoading(false)));
+
+    return response;
   };
 
-  onGet = (id, cancelToken) => {
-    // Find a way to have it dynamically
-    this.setIsLoading(true);
-    return axios
+  onGet = async (id, cancelToken) => {
+    this.setLoading(true);
+    const response = await axios
       .get(`${this._api_url}/${id}`, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
       .catch(err => {
-        if (axios.isCancel(err))
-          console.log("onGet Request Canceled", err.message);
-        else console.log("onGet Request Failed", err.message);
-
-        return { data: [] };
+        handleCatch(err);
       })
-      .finally(this.setIsLoading(false));
+      .finally(() => sleep(1000).then(() => this.setLoading(false)));
+
+    return response;
   };
 
-  onCreate = (props, cancelToken) => {
-    this.setIsLoading(true);
-    return axios
+  onCreate = async (props, cancelToken) => {
+    this.setLoading(true);
+    const response = await axios
       .post(this._api_url, props, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
       .catch(err => {
-        if (axios.isCancel(err))
-          console.log("onCreate Request Canceled", err.message);
-        else console.log("onCreate Request Failed", err.message);
-
-        return { data: [] };
+        handleCatch(err);
       })
-      .finally(this.setIsLoading(false));
+      .finally(() => sleep(1000).then(() => this.setLoading(false)));
+
+    return response;
   };
 
-  onUpdate = (id, props, cancelToken) => {
-    this.setIsLoading(true);
-    return axios
+  onUpdate = async (id, props, cancelToken) => {
+    this.setLoading(true);
+    const response = await axios
       .patch(`${this._api_url}/${id}`, props, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
       .catch(err => {
-        if (axios.isCancel(err))
-          console.log("onUpdate Request Canceled", err.message);
-        else console.log("onUpdate Request Failed", err.message);
-
-        return { data: [] };
+        handleCatch(err);
       })
-      .finally(this.setIsLoading(false));
+      .finally(() => sleep(1000).then(() => this.setLoading(false)));
+
+    return response;
   };
 
-  onDelete = (id, cancelToken) => {
-    this.setIsLoading(true);
-    return axios
+  onDelete = async (id, cancelToken) => {
+    this.setLoading(true);
+    const response = await axios
       .delete(`${this._api_url}/${id}`, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
       .catch(err => {
-        if (axios.isCancel(err))
-          console.log("onDelete Request Canceled", err.message);
-        else console.log("onDelete Request Failed", err.message);
-
-        return { data: [] };
+        handleCatch(err);
       })
-      .finally(this.setIsLoading(false));
+      .finally(() => sleep(1000).then(() => this.setLoading(false)));
+
+    return response;
   };
 
-  onReset = cancelToken => {
-    this.setIsLoading(true);
-    return axios
+  onReset = async cancelToken => {
+    this.setLoading(true);
+    const response = await axios
       .delete(`${this._api_url}`, {
         ...AxiosConfig,
         cancelToken: cancelToken.token
       })
       .catch(err => {
-        if (axios.isCancel(err))
-          console.log("onDelete Request Canceled", err.message);
-        else console.log("onDelete Request Failed", err.message);
-        return { success: false };
+        handleCatch(err);
       })
-      .finally(this.setIsLoading(false));
+      .finally(() => sleep(1000).then(() => this.setLoading(false)));
+
+    return response;
   };
 }

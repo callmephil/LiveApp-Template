@@ -51,76 +51,100 @@ const executeTransaction = (db, sqlArray) => {
 
 const executeToDatabase = stmt => {
   try {
+    const handleCatch = (err) => {
+      console.error(`[ERROR] PreparedStatement/Execute: ${err.message}`);
+      io.sockets.emit("ERROR", err.message);
+      return null;
+      // return {
+      //   success: false,
+      //   result: err.message 
+      // }
+    }
+
     const SELECT = id => {
-      return id ? stmt.get(id) : stmt.get();
+      try {
+        return id ? stmt.get(id) : stmt.get();
+      } catch (e) {
+        return handleCatch(e);
+      }
     };
 
     const SELECT_ALL = id => {
-      return id ? stmt.all(id) : stmt.all();
+      try {
+        return id ? stmt.all(id) : stmt.all();
+      } catch (e) {
+        return handleCatch(e);
+      }
     };
 
     const SELECT_PROPS = (props, all) => {
-      return all ? stmt.all({ ...props }) : stmt.get({ ...props });
+      try {
+        return all ? stmt.all({ ...props }) : stmt.get({ ...props });
+      } catch (e) {
+        return handleCatch(e);
+      }
     };
 
     const INSERT = props => {
-      const result = stmt.run({
-        ...props
-      });
+      try {
+        const result = stmt.run({
+          ...props
+        });
 
-      console.log(result);
-      if (result.changes === 1) {
-        io.sockets.emit(
-          "CREATE",
-          result.lastInsertRowid,
-          JSON.stringify({ ...props, creation_date: "How?" })
-        );
-        io.sockets.emit("RE_FETCH");
+        return { id: result.lastInsertRowid, ...props };
+      } catch (e) {
+        return handleCatch(e);
       }
-
-      return result;
     };
 
     const UPDATE = (id, props) => {
-      props.id = id;
-      const result = stmt.run({
-        ...props
-      });
+      try {
+        props.id = id;
+        const result = stmt.run({
+          ...props
+        });
 
-      if (result.changes === 1) {
-        io.sockets.emit("UPDATE", JSON.stringify(props));
-        io.sockets.emit("RE_FETCH");
+        return result.changes === 1 ? { id, ...props } : null;
+      } catch (e) {
+        return handleCatch(e);
       }
-      return result.changes;
     };
 
     const DELETE = id => {
-      const result = stmt.run(id);
-      if (result.changes === 1) {
-        io.sockets.emit("DELETE", id);
-        io.sockets.emit("RE_FETCH");
+      try {
+        const result = stmt.run(id);
+        return result.changes === 1 ? { id } : null;
+      } catch (e) {
+        return handleCatch(e);
       }
-      return result.changes;
     };
 
     const DELETE_PROPS = props => {
-      const result = stmt.run({ ...props });
-      if (result.changes === 1) {
-        io.sockets.emit("DELETE", JSON.stringify(props));
-        io.sockets.emit("RE_FETCH");
+      try {
+        const result = stmt.run({ ...props });
+        return result.changes === 1 ? { ...props } : null;
+      } catch (e) {
+        return handleCatch(e);
       }
-      return result.changes;
     };
 
     const DELETE_ALL = () => {
-      return stmt.run();
+      try {
+        return stmt.run();
+      } catch (e) {
+        return handleCatch(e);
+      }
     };
 
     const INSERT_ALL = props => {
-      const result = stmt.run({
-        ...props
-      });
-      return result;
+      try {
+        const result = stmt.run({
+          ...props
+        });
+        return result;
+      } catch (e) {
+        return handleCatch(e);
+      }
     };
 
     const QueryCenter = {
