@@ -1,4 +1,19 @@
-export const arrayOfObjectsManager = (_this, list, targetName, primaryKey, _isMounted) => {
+// import { debounce } from "lodash";
+
+// export const onChangeValue = (debouncEventRef) => {
+//   const debounceEvent = (_fn, timer = 500, options = null) => {
+//     debouncEventRef.current = debounce(_fn, timer, options);
+//     return e => {
+//       e.persist();
+//       return debounceEvent(e);
+//     };
+//   }
+// }
+
+// https://itnext.io/improving-react-application-perfomance-by-avoiding-unnecessary-updates-bd96d03dec40
+
+
+export const arrayOfObjectsManager = (_this, list, targetName, primaryKey, _isMounted = true) => {
   const handleStateUpdate = (id, data) => {
     const newList = list.map(el =>
       el[primaryKey] === id ? { ...el, ...data } : el
