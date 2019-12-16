@@ -1,11 +1,9 @@
 import React, { Component } from "react";
-import UnicornsContext, {
-  MyUnicornsContext
-} from "../Services/UnicornsContextServices";
 import Table from "../Components/Table/Table";
+import Context, { MyContext } from "../Services/MyContextServices";
 
 class UnicornsCreateForm extends Component {
-  static contextType = MyUnicornsContext;
+  static contextType = MyContext;
   state = {
     unicorn_id: null,
     name: "",
@@ -56,7 +54,9 @@ class UnicornsCreateForm extends Component {
 
   render() {
     const { name, age, color, unicorn_id } = this.state;
-    const isSubmitOrEditLabel =  unicorn_id ? `Edit - ID: ${unicorn_id}` : "Submit";
+    const isSubmitOrEditLabel = unicorn_id
+      ? `Edit - ID: ${unicorn_id}`
+      : "Submit";
     return (
       <form
         className="create-form"
@@ -124,12 +124,17 @@ class UnicornsCreateForm extends Component {
 export default class Unicorns extends Component {
   render() {
     return (
-      <UnicornsContext isViewMode={false}>
+      <Context
+        isViewMode={false}
+        route={"unicorns"}
+        primaryID="unicorn_id"
+        toastIcon={"🦄"}
+      >
         <div className="container-fluid">
           <h1> Unicorns </h1>
           <div className="row">
             <div className="col-8">
-              <MyUnicornsContext.Consumer>
+              <MyContext.Consumer>
                 {context => (
                   <Table
                     list={context.state.list}
@@ -142,7 +147,7 @@ export default class Unicorns extends Component {
                     title="Precious List Of Existing Unicorns"
                   />
                 )}
-              </MyUnicornsContext.Consumer>
+              </MyContext.Consumer>
             </div>
             <div className="col-4">
               <h3 className="blockquote text-center"> C.R.U.D </h3>
@@ -150,7 +155,7 @@ export default class Unicorns extends Component {
             </div>
           </div>
         </div>
-      </UnicornsContext>
+      </Context>
     );
   }
 }

@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import UsersContext, { MyUsersContext } from "../Services/UsersContextServices";
 import Table from "../Components/Table/Table";
+import Context, { MyContext } from "../Services/MyContextServices";
 
 class UsersCreateForm extends Component {
-  static contextType = MyUsersContext;
+  static contextType = MyContext;
   state = {
     user_id: null,
     first_name: "",
@@ -115,12 +115,17 @@ class UsersCreateForm extends Component {
 export default class Users extends Component {
   render() {
     return (
-      <UsersContext isViewMode={false}>
+      <Context
+        isViewMode={false}
+        route={"users"}
+        primaryID="user_id"
+        toastIcon={"👤"}
+      >
         <div className="container-fluid">
           <h1> Users </h1>
           <div className="row">
             <div className="col-8">
-              <MyUsersContext.Consumer>
+              <MyContext.Consumer>
                 {context => (
                   <Table
                     list={context.state.list}
@@ -139,7 +144,7 @@ export default class Users extends Component {
                     title="Precious List Of Existing Users"
                   />
                 )}
-              </MyUsersContext.Consumer>
+              </MyContext.Consumer>
             </div>
             <div className="col-4">
               <h3 className="blockquote text-center"> C.R.U.D </h3>
@@ -147,7 +152,7 @@ export default class Users extends Component {
             </div>
           </div>
         </div>
-      </UsersContext>
+      </Context>
     );
   }
 }

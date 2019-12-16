@@ -7,15 +7,41 @@ const AxiosConfig = {
 };
 const SOCKET_API = socketIOClient("http://localhost:8080");
 
-export const sleep = milliseconds => {
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
-};
+// export const sleep = ms => {
+//   let timeout = null;
+//   const promise = new Promise(resolve => (timeout = setTimeout(resolve, ms)));
+//   return {
+//     timer: promise,
+//     cancel: () => {
+//       console.log("canceling");
+//       return clearTimeout(timeout);
+//     }
+//   };
+//};
+
+
+export const sleep = ms => {
+  return new Promise(resolve => (setTimeout(resolve, ms)));
+}
 
 const handleCatch = err => {
-  if (axios.isCancel(err)) console.info("Request Canceled", err.message);
-  else console.error("Request Failed", err.message);
-
-  return { data: [] };
+  if (axios.isCancel(err)) {
+    console.info("Request Canceled", err.message);
+    return {
+      success: true,
+      isCancel: true,
+      isLoading: false,
+      result: null
+    };
+  } else {
+    console.error("Axios Catch", err.message);
+    return {
+      success: false,
+      isCancel: false,
+      isLoading: false,
+      result: err.message
+    };
+  }
 };
 
 export default class AxiosUtils {
@@ -30,19 +56,25 @@ export default class AxiosUtils {
   };
 
   onGetAll = async (params, cancelToken) => {
-    this.setLoading(true);
-    const response = await axios
-      .get(this._api_url, {
+    try {
+      this.setLoading(true);
+      const response = await axios.get(this._api_url, {
         ...AxiosConfig,
         params,
         cancelToken: cancelToken.token
-      })
-      .catch(err => {
-        handleCatch(err);
-      })
-      .finally(() => sleep(1000).then(() => this.setLoading(false)));
+      });
 
-    return response;
+      if (response && response.data.result) {
+        return {
+          success: true,
+          isCancel: false,
+          isLoading: false,
+          result: response.data.result,
+        };
+      }
+    } catch (err) {
+      return handleCatch(err);
+    }
   };
 
   onGet = async (id, cancelToken) => {
@@ -55,9 +87,20 @@ export default class AxiosUtils {
       .catch(err => {
         handleCatch(err);
       })
-      .finally(() => sleep(1000).then(() => this.setLoading(false)));
+      .finally(() => this.setLoading(false));
 
-    return response;
+    if (response && response.data)
+      return {
+        success: true,
+        isCancel: false,
+        result: response.data
+      };
+    else
+      return {
+        success: false,
+        isCancel: false,
+        result: null
+      };
   };
 
   onCreate = async (props, cancelToken) => {
@@ -70,7 +113,6 @@ export default class AxiosUtils {
       .catch(err => {
         handleCatch(err);
       })
-      .finally(() => sleep(1000).then(() => this.setLoading(false)));
 
     return response;
   };
@@ -85,7 +127,6 @@ export default class AxiosUtils {
       .catch(err => {
         handleCatch(err);
       })
-      .finally(() => sleep(1000).then(() => this.setLoading(false)));
 
     return response;
   };
@@ -100,7 +141,6 @@ export default class AxiosUtils {
       .catch(err => {
         handleCatch(err);
       })
-      .finally(() => sleep(1000).then(() => this.setLoading(false)));
 
     return response;
   };
@@ -115,7 +155,6 @@ export default class AxiosUtils {
       .catch(err => {
         handleCatch(err);
       })
-      .finally(() => sleep(1000).then(() => this.setLoading(false)));
 
     return response;
   };

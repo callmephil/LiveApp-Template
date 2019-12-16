@@ -1,15 +1,17 @@
 import React, { Component } from "react";
 import "../Layout/form.css";
-import UnicornsContext, {
-  MyUnicornsContext
-} from "../Services/UnicornsContextServices";
 import Table from "../Components/Table/Table";
-import UsersContext, { MyUsersContext } from "../Services/UsersContextServices";
+import Context, { MyContext } from "../Services/MyContextServices";
 
 export default class Dashboard extends Component {
   RenderUnicornTable = () => (
-    <UnicornsContext isViewMode={true}>
-      <MyUnicornsContext.Consumer>
+    <Context
+      isViewMode={true}
+      route={"unicorns"}
+      primaryID="unicorn_id"
+      toastIcon={"🦄"}
+    >
+      <MyContext.Consumer>
         {context => (
           <Table
             list={context.state.list}
@@ -21,13 +23,18 @@ export default class Dashboard extends Component {
             structure={["ID", "name", "age", "color", "creation date"]}
           />
         )}
-      </MyUnicornsContext.Consumer>
-    </UnicornsContext>
+      </MyContext.Consumer>
+    </Context>
   );
 
   RenderUserTable = () => (
-    <UsersContext isViewMode={true}>
-      <MyUsersContext.Consumer>
+    <Context
+      isViewMode={true}
+      route={"users"}
+      primaryID="user_id"
+      toastIcon={"👤"}
+    >
+      <MyContext.Consumer>
         {context => (
           <Table
             list={context.state.list}
@@ -45,8 +52,8 @@ export default class Dashboard extends Component {
             title={"Precious List Of Existing Users"}
           />
         )}
-      </MyUsersContext.Consumer>
-    </UsersContext>
+      </MyContext.Consumer>
+    </Context>
   );
 
   render() {
