@@ -7,10 +7,6 @@ const AxiosConfig = {
 };
 const SOCKET_API = socketIOClient("http://localhost:8080");
 
-export const sleep = ms => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 const handleCatch = err => {
   if (axios.isCancel(err)) {
     console.info("Request Canceled", err.message);

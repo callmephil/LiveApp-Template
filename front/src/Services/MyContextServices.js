@@ -1,14 +1,12 @@
 import React, { PureComponent } from "react";
 import { toast } from "react-toastify";
-import AxiosUtils, { sleep } from "./AxiosUtils";
+import AxiosUtils from "./AxiosUtils";
 import { arrayOfObjectsManager } from "../Utils/StateManager";
 import PropTypes from "prop-types";
 
 export const MyContext = React.createContext(null);
 
 class Context extends PureComponent {
-  _isMounted = false;
-
   constructor(props) {
     super(props);
     this.state = {
@@ -38,13 +36,11 @@ class Context extends PureComponent {
   setLoading = isLoading => this.setState({ isLoading });
 
   componentDidMount() {
-    this._isMounted = true;
     this.fetchList();
     this.handleSocket(this.props.isViewMode);
   }
 
   componentWillUnmount() {
-    this._isMounted = false;
     this.cancelToken.cancel("unmounting");
     this.io.off(`/api/${this.props.route}`);
     this.io.off("ERROR");
@@ -57,8 +53,7 @@ class Context extends PureComponent {
           this,
           this.state.list,
           "list",
-          this.props.primaryID,
-          this._isMounted
+          this.props.primaryID
         );
   }
 
@@ -69,36 +64,22 @@ class Context extends PureComponent {
         this.fetchByID(parseInt(id));
       else if (isViewMode) this.fetchList();
       else {
-        sleep(1000)
-          .then(() => {
-            if (this._isMounted)
-              switch (method) {
-                case "DELETE":
-                  this.manager.handleStateDelete(parseInt(id));
-                  break;
-                case "POST":
-                  this.manager.handleStateCreate(
-                    parseInt(id),
-                    JSON.parse(data),
-                    { creation_date: "NOW" }
-                  );
-                  break;
-                case "PATCH":
-                  this.manager.handleStateUpdate(
-                    parseInt(id),
-                    JSON.parse(data)
-                  );
-                  break;
-                default:
-                  console.error(`unknown method ${method}`);
-              }
-          })
-          .finally(() => {
-            if (this._isMounted) {
-              this.setLoading(false);
-              toast(`${method} ${this.props.toastIcon} ID:${id}`);
-            }
-          });
+        switch (method) {
+          case "DELETE":
+            this.manager.handleStateDelete(parseInt(id));
+            break;
+          case "POST":
+            this.manager.handleStateCreate(parseInt(id), JSON.parse(data), {
+              creation_date: "NOW"
+            });
+            break;
+          case "PATCH":
+            this.manager.handleStateUpdate(parseInt(id), JSON.parse(data));
+            break;
+          default:
+            console.error(`unknown method ${method}`);
+        }
+        toast(`${method} ${this.props.toastIcon} ID:${id}`);
       }
     });
   }
@@ -118,34 +99,24 @@ class Context extends PureComponent {
     const response = await this.AxiosUtils.onGetAll(null, this.cancelToken);
     if (response.success) {
       if (response.result && !response.isCancel) {
-        sleep(1000).then(() => {
-          if (this._isMounted)
-            this.setState({ list: response.result, isLoading: false });
-        }).finally(() => {
-        if (this._isMounted) toast(`${this.props.toastIcon} List Loaded`);
-        })
+        this.setState({ list: response.result, isLoading: false }, () => {
+          toast(`${this.props.toastIcon} List Loaded`);
+        });
       }
-    } else if (this._isMounted)
-      toast.error(`${this.props.toastIcon} ${response.result}`);
+    } else toast.error(`${this.props.toastIcon} ${response.result}`);
   };
 
   fetchByID = async id => {
     const response = await this.AxiosUtils.onGet(id, this.cancelToken);
     if (response.success) {
       if (response.result && !response.isCancel) {
-        sleep(1000).then(() => {
-          if (this._isMounted) {
-            const list = this.manager.handleStateUoC(id, response.result);
-            this.forceUpdate(() => {
-              this.setState({ list, isLoading: false });
-            });
-          }
-        }).finally(() => {
-        if (this._isMounted) toast(`${this.props.toastIcon} fetchByID: ${id}`);
-        })
-      } else if (this._isMounted)
-        toast.error(`${this.props.toastIcon} ${response.result}`);
-    }
+        const list = this.manager.handleStateUoC(id, response.result);
+        this.forceUpdate(() => {
+          this.setState({ list, isLoading: false });
+        });
+      }
+      toast(`${this.props.toastIcon} fetchByID: ${id}`);
+    } else toast.error(`${this.props.toastIcon} ${response.result}`);
   };
 
   _UpdateByID = (unicorn_id, data) => {
@@ -168,8 +139,7 @@ class Context extends PureComponent {
           this,
           [],
           "list",
-          this.props.primaryID,
-          this._isMounted
+          this.props.primaryID
         );
       }
     });
