@@ -18,5 +18,13 @@ Limit the changes to our original server architecture.
 
 ## TODO
 - [ ] Code cleanup.
-- [ ] Improvement in design.
-- [ ] Multiple Routes Handling. (Priority)
+- [x] Improvement in design.
+- [x] Multiple Routes Handling. (Priority)
+- [x] Database Error Handling.
+- [x] Toast / Feedback.
+- [x] Throttling on C.R.U.D operations
+- [ ] Throttling bug with axios cancelToken and setState
+- [ ] Debounce on forms
+- [ ] Disable/Allow Button on form button.
+- [ ] Testing with sub routes.
+- [ ] Boilerplate on basic state c.r.u.d operations.
