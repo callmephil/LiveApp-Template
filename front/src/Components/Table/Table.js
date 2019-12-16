@@ -14,18 +14,27 @@ export default class Table extends PureComponent {
   };
 
   RenderHeader = ({ title, _fnReset }) => {
+    const isLoadingLabel = this.props.isLoading ? "Updating..." : "Updated";
+
     return (
       <div style={{ marginBottom: "10px" }} className="container">
         <div className="row justify-content-md-center">
-          <div className="col col-sm-2"></div>
+          <div className="col col-sm-auto"></div>
+          <button
+              type="button"
+              className="btn btn-outline-info"
+            >
+              {isLoadingLabel}
+            </button>
           <div>
-            <h3 className="col col-md-auto">{title}</h3>
+            <h4 className="col col-md-auto">{title}</h4>
           </div>
-          <div className="col col-sm-2">
+          <div className="col col-sm-auto">
             <button
               type="button"
               className="btn btn-outline-warning"
               onClick={() => _fnReset()}
+              disabled={this.props.isLoading}
             >
               Reset Data
             </button>
@@ -47,6 +56,7 @@ export default class Table extends PureComponent {
                   style={{ width: "100%" }}
                   className="btn btn-info btn-sm"
                   onClick={() => _fnGet(id)}
+                  disabled={this.props.isLoading}
                 >
                   EDIT
                 </button>
@@ -55,6 +65,7 @@ export default class Table extends PureComponent {
                 <button
                   className="btn btn-outline-danger btn-sm"
                   onClick={() => _fnDelete(id)}
+                  disabled={this.props.isLoading}
                 >
                   DELETE
                 </button>
@@ -105,9 +116,6 @@ export default class Table extends PureComponent {
   };
 
   render() {
-    if (this.props.isLoading)
-      return <h3 className="table-fill"> Loading Table Data... </h3>;
-
     return (
       <div className="col">
         <this.RenderHeader

@@ -36,7 +36,7 @@ class UsersContext extends PureComponent {
     this.io.on("ERROR", message => toast.error(message));
     this.io.on("/api/users", (method, id, data) => {
       if (this.state.isSingleFetch && method !== "DELETE")
-        this.handleSingleFetch(parseInt(id));
+        this.fetchByID(parseInt(id));
       else if (isViewMode) this.fetchList();
       else {
         switch (method) {
@@ -56,16 +56,6 @@ class UsersContext extends PureComponent {
     });
   }
 
-  handleSingleFetch = async id => {
-    const result = await this.AxiosUtils.onGet(id, this.cancelToken);
-    if (result) {
-      const list = this.state.list.map(el =>
-        el["users"] === id ? { ...el, ...result.data.result } : el
-      );
-      this.setState({ list });
-    }
-  };
-
   handleStateUpdate = (id, data) => {
     this.setState(state => {
       return {
@@ -78,7 +68,7 @@ class UsersContext extends PureComponent {
   };
 
   handleStateCreate = (id, data) => {
-    const newRow = { unicorn_id: id, ...data };
+    const newRow = { user_id: id, ...data, creation_date: "NOW" };
     this.setState(state => {
       return { list: [...state.list, newRow] };
     });
@@ -94,15 +84,10 @@ class UsersContext extends PureComponent {
     toast(`🦄 ID:${id} Deleted`);
   };
 
-  fetchList() {
-    this.AxiosUtils.onGetAll(null,this.cancelToken).then(result => {
-      if (result.data.result) 
-        this.setState({ list: result.data.result });
-    });
-  }
-
   _GetByID = user_id => {
-    const result = this.state.list.find(user => user.user_id === user_id);
+    const result = this.state.list.find(
+      data => data.user_id === user_id
+    );
     if (result) this.setState({ isEditMode: true, editData: result });
   };
 
@@ -110,24 +95,37 @@ class UsersContext extends PureComponent {
     this.setState({ isEditMode: false, editData: null });
   };
 
-  _UpdateByID = (user_id, data) => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
+  fetchList = async () => {
+    const response = await this.AxiosUtils.onGetAll(null, this.cancelToken);
+    if (response) {
+      this.setState({ list: response.data.result });
+      toast(`🦄 List Loaded`);
+    }
+  };
 
-    this.AxiosUtils.onUpdate(user_id, data, this.cancelToken).then(() => {});
+  fetchByID =  id => {
+   this.AxiosUtils.onGet(id, this.cancelToken).then((response) => {
+    if (response) {
+      const list = this.state.list.map(el =>
+        el["user_id"] === id ? { ...el, ...response.data.result } : el
+      );
+      this.setState({ list });
+    }})
+  };
+
+  _UpdateByID = (user_id, data) => {
+    this.AxiosUtils.onUpdate(user_id, data, this.cancelToken);
   };
 
   _DeleteByID = user_id => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
-    this.AxiosUtils.onDelete(user_id, this.cancelToken).then(() => {});
+    this.AxiosUtils.onDelete(user_id, this.cancelToken);
   };
 
   _Create = data => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
-    this.AxiosUtils.onCreate(data, this.cancelToken).then(() => {});
+    this.AxiosUtils.onCreate(data, this.cancelToken);
   };
 
   _Reset = () => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
     this.AxiosUtils.onReset(this.cancelToken).then(result => {
       if (result) this.setState({ list: [] });
     });

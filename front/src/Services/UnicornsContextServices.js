@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { toast } from "react-toastify";
-import AxiosUtils from "./AxiosUtils";
+import AxiosUtils, { sleep } from "./AxiosUtils";
 
 export const MyUnicornsContext = React.createContext(null);
 
@@ -10,15 +10,18 @@ class UnicornsContext extends PureComponent {
     this.state = {
       list: [],
       editData: null,
-      isLoading: true,
+      isLoading: false,
       isEditMode: false,
-      isSingleFetch: true,
+      isSingleFetch: false
     };
 
-    const setIsLoading = isLoading => this.setState({ isLoading });
-    this.AxiosUtils = new AxiosUtils(setIsLoading, "unicorns");
+    // const setLoading = isLoading => this.setState({ isLoading });
+    this.AxiosUtils = new AxiosUtils(this.setLoading, "unicorns");
+    this.cancelToken = this.AxiosUtils.getCancelToken();
     this.io = this.AxiosUtils.socket;
   }
+
+  setLoading = isLoading => this.setState({ isLoading });
 
   componentDidMount() {
     this.fetchList();
@@ -34,37 +37,27 @@ class UnicornsContext extends PureComponent {
     this.io.on("ERROR", message => toast.error(message));
     this.io.on("/api/unicorns", (method, id, data) => {
       if (this.state.isSingleFetch && method !== "DELETE")
-        this.handleSingleFetch(parseInt(id))
-      else if (isViewMode) 
-        this.fetchList();
+        this.fetchByID(parseInt(id));
+      else if (isViewMode) this.fetchList();
       else {
-        switch (method) {
-          case "DELETE":
-            this.handleStateDelete(parseInt(id));
-            break;
-          case "POST":
-            this.handleStateCreate(parseInt(id), JSON.parse(data));
-            break;
-          case "PATCH":
-            this.handleStateUpdate(parseInt(id), JSON.parse(data));
-            break;
-          default:
-            console.error(`unknown method ${method}`);
-        }
+        sleep(1000).then(() => {
+          switch (method) {
+            case "DELETE":
+              this.handleStateDelete(parseInt(id));
+              break;
+            case "POST":
+              this.handleStateCreate(parseInt(id), JSON.parse(data));
+              break;
+            case "PATCH":
+              this.handleStateUpdate(parseInt(id), JSON.parse(data));
+              break;
+            default:
+              console.error(`unknown method ${method}`);
+          }
+        })
+        .finally(() => toast(`${method} 👤 ID:${id}`))
       }
     });
-  }
-
-  handleSingleFetch = async (id) => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
-    const result = await this.AxiosUtils.onGet(id, cancelToken);
-    if (result)
-    {
-      const list = this.state.list.map(el =>
-        el["unicorn_id"] === id ? { ...el, ...result.data.result } : el
-      )
-      this.setState({list})
-    };
   }
 
   handleStateUpdate = (id, data) => {
@@ -75,7 +68,6 @@ class UnicornsContext extends PureComponent {
         )
       };
     });
-    toast(`🦄 ID:${id} Updated`);
   };
 
   handleStateCreate = (id, data) => {
@@ -83,7 +75,6 @@ class UnicornsContext extends PureComponent {
     this.setState(state => {
       return { list: [...state.list, newRow] };
     });
-    toast(`🦄 ID:${id} Created`);
   };
 
   handleStateDelete = id => {
@@ -92,25 +83,11 @@ class UnicornsContext extends PureComponent {
         list: state.list.filter(data => data.unicorn_id !== id)
       };
     });
-    toast(`🦄 ID:${id} Deleted`);
   };
-
-  fetchList() {
-    const cancelToken = this.AxiosUtils.getCancelToken();
-    // sleep(1500).then(() =>
-    this.AxiosUtils.onGetAll(null, cancelToken).then(result => {
-      if (result.data.result) {
-        this.setState({ list: result.data.result });
-        toast(`🦄 Fetched`);
-      }
-    });
-
-    // );
-  }
 
   _GetByID = unicorn_id => {
     const result = this.state.list.find(
-      unicorn => unicorn.unicorn_id === unicorn_id
+      data => data.unicorn_id === unicorn_id
     );
     if (result) this.setState({ isEditMode: true, editData: result });
   };
@@ -119,25 +96,43 @@ class UnicornsContext extends PureComponent {
     this.setState({ isEditMode: false, editData: null });
   };
 
-  _UpdateByID = (unicorn_id, data) => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
+  fetchList = async () => {
+    const response = await this.AxiosUtils.onGetAll(null, this.cancelToken);
+    if (response) {
+      this.setState({ list: response.data.result });
+      toast(`👤 List Loaded`);
+    }
+  };
 
-    this.AxiosUtils.onUpdate(unicorn_id, data, cancelToken).then(() => {});
+  fetchByID = id => {
+    this.AxiosUtils.onGet(id, this.cancelToken).then((response) => {
+     if (response) {
+       return this.state.list.map(el =>
+         el["unicorn_id"] === id ? { ...el, ...response.data.result } : el
+       );
+     }
+   }).then(list => {
+     console.log(list);
+   this.setState({ list })
+   toast(`👤 fetchByID: ${id}`);
+  })
+   
+  }
+
+  _UpdateByID = (unicorn_id, data) => {
+    this.AxiosUtils.onUpdate(unicorn_id, data, this.cancelToken);
   };
 
   _DeleteByID = unicorn_id => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
-    this.AxiosUtils.onDelete(unicorn_id, cancelToken).then(() => {});
+    this.AxiosUtils.onDelete(unicorn_id, this.cancelToken);
   };
 
   _Create = data => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
-    this.AxiosUtils.onCreate(data, cancelToken).then(() => {});
+    this.AxiosUtils.onCreate(data, this.cancelToken);
   };
 
   _Reset = () => {
-    const cancelToken = this.AxiosUtils.getCancelToken();
-    this.AxiosUtils.onReset(cancelToken).then(result => {
+    this.AxiosUtils.onReset(this.cancelToken).then(result => {
       if (result) this.setState({ list: [] });
     });
   };

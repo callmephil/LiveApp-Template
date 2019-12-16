@@ -105,12 +105,14 @@ class UnicornsCreateForm extends Component {
         <button
           type="submit"
           className="btn btn-success btn-lg btn-block btn-sm"
+          disabled={this.context.state.isLoading}
         >
           {isSubmitOrEditLabel}
         </button>
         <button
           type="reset"
           className="btn btn-warning btn-lg btn-block btn-sm"
+          disabled={this.context.state.isLoading}
         >
           Clear
         </button>
