@@ -3,7 +3,6 @@ export const arrayOfObjectsManager = (_this, list, targetName, primaryKey) => {
     const newList = list.map(el =>
       el[primaryKey] === id ? { ...el, ...data } : el
     );
-    console.log(newList);
     return !_this ? newList : _this.setState({ [targetName]: newList });
   };
 
@@ -22,11 +21,24 @@ export const arrayOfObjectsManager = (_this, list, targetName, primaryKey) => {
     return !_this ? result : _this.setState({ [targetName]: result });
   };
 
+  const handleStateUoC = (id, data) => {
+    const newList = list;
+    const isIndex = list.findIndex(el => el[primaryKey] === id)
+    if (isIndex >= 0)
+      newList[isIndex] = { ...newList[isIndex], ...data }
+    else {
+      newList.push({ [primaryKey]: id, ...data })
+    }
+    // return !_this ? newList : _this.setState({ [targetName]: newList });
+    return newList;
+  }
+
   return {
     handleStateUpdate,
     handleStateCreate,
     handleStateDelete,
-    handleStateGet
+    handleStateGet,
+    handleStateUoC
   };
 };
 

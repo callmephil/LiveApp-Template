@@ -8,8 +8,8 @@ const AxiosConfig = {
 const SOCKET_API = socketIOClient("http://localhost:8080");
 
 export const sleep = ms => {
-  return new Promise(resolve => (setTimeout(resolve, ms)));
-}
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
 
 const handleCatch = err => {
   if (axios.isCancel(err)) {
@@ -56,7 +56,7 @@ export default class AxiosUtils {
           success: true,
           isCancel: false,
           isLoading: false,
-          result: response.data.result,
+          result: response.data.result
         };
       }
     } catch (err) {
@@ -73,14 +73,13 @@ export default class AxiosUtils {
       })
       .catch(err => {
         handleCatch(err);
-      })
-      .finally(() => this.setLoading(false));
+      });
 
-    if (response && response.data)
+    if (response && response.data.result)
       return {
         success: true,
         isCancel: false,
-        result: response.data
+        result: response.data.result
       };
     else
       return {
@@ -99,7 +98,7 @@ export default class AxiosUtils {
       })
       .catch(err => {
         handleCatch(err);
-      })
+      });
 
     return response;
   };
@@ -113,7 +112,7 @@ export default class AxiosUtils {
       })
       .catch(err => {
         handleCatch(err);
-      })
+      });
 
     return response;
   };
@@ -127,7 +126,7 @@ export default class AxiosUtils {
       })
       .catch(err => {
         handleCatch(err);
-      })
+      });
 
     return response;
   };
@@ -141,7 +140,7 @@ export default class AxiosUtils {
       })
       .catch(err => {
         handleCatch(err);
-      })
+      });
 
     return response;
   };

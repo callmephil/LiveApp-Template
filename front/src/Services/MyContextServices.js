@@ -21,7 +21,6 @@ class Context extends PureComponent {
     this.AxiosUtils = new AxiosUtils(this.setLoading, this.props.route);
     this.cancelToken = this.AxiosUtils.getCancelToken();
     this.io = this.AxiosUtils.socket;
-    this.manager = React.createRef(null);
   }
   static defaultProps = {
     isViewMode: false
@@ -43,7 +42,7 @@ class Context extends PureComponent {
   componentDidUpdate(prevProps, prevState) {
     if (this.state.list.length > 0)
       if (prevState.list !== this.state.list)
-        this.manager.current = arrayOfObjectsManager(
+        this.manager = arrayOfObjectsManager(
           this,
           this.state.list,
           "list",
@@ -68,17 +67,17 @@ class Context extends PureComponent {
           .then(() => {
             switch (method) {
               case "DELETE":
-                this.manager.current.handleStateDelete(parseInt(id));
+                this.manager.handleStateDelete(parseInt(id));
                 break;
               case "POST":
-                this.manager.current.handleStateCreate(
+                this.manager.handleStateCreate(
                   parseInt(id),
                   JSON.parse(data),
                   { creation_date: "NOW" }
                 );
                 break;
               case "PATCH":
-                this.manager.current.handleStateUpdate(
+                this.manager.handleStateUpdate(
                   parseInt(id),
                   JSON.parse(data)
                 );
@@ -110,7 +109,9 @@ class Context extends PureComponent {
     const response = await this.AxiosUtils.onGetAll(null, this.cancelToken);
     if (response.success) {
       if (response.result && !response.isCancel) {
-        this.setState({ list: response.result, isLoading: false });
+        sleep(1000).then(() => {
+          this.setState({ list: response.result, isLoading: false });
+        })
         toast(`${this.props.toastIcon} List Loaded`);
       }
     } else toast.error(`${this.props.toastIcon} ${response.result}`);
@@ -120,7 +121,12 @@ class Context extends PureComponent {
     const response = await this.AxiosUtils.onGet(id, this.cancelToken);
     if (response.success) {
       if (response.result && !response.isCancel) {
-        this.manager.current.handleStateUpdate(id, response.result);
+        sleep(1000).then(() => {
+          const list = this.manager.handleStateUoC(id, response.result);
+          this.forceUpdate(() => {
+            this.setState({ list, isLoading: false });
+          })
+        })
         toast(`${this.props.toastIcon} fetchByID: ${id}`);
       } else toast.error(`${this.props.toastIcon} ${response.result}`);
     }
