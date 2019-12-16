@@ -14,7 +14,7 @@ class Context extends PureComponent {
       editData: null,
       isLoading: false,
       isEditMode: false,
-      isSingleFetch: true
+      isSingleFetch: false
     };
 
     // const setLoading = isLoading => this.setState({ isLoading });
@@ -146,7 +146,15 @@ class Context extends PureComponent {
 
   _Reset = () => {
     this.AxiosUtils.onReset(this.cancelToken).then(result => {
-      if (result) this.setState({ list: [] });
+      if (result) {
+        this.setState({ list: [] });
+        this.manager = arrayOfObjectsManager(
+          this,
+          [],
+          "list",
+          this.props.primaryID
+        );
+      }
     });
   };
   render() {
