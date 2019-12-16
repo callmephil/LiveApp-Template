@@ -29,10 +29,6 @@ const handleSocketEmitter = (response, result) => {
     const { baseUrl, method } = response.req;
 
     if (method === "GET") return;
-
-    // const id = method === "POST" ? { lastInsertRowid: result } : { ...params };
-    // const data = { ...body, ...query };
-
     const id = result.id ? result.id : null;
     delete result.id;
     io.sockets.emit(baseUrl, method, id, JSON.stringify(result));

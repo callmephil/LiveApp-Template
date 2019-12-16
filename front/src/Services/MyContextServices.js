@@ -1,6 +1,8 @@
 import React, { PureComponent } from "react";
 import { toast } from "react-toastify";
 import AxiosUtils, { sleep } from "./AxiosUtils";
+import { arrayOfObjectsManager } from "../Utils/StateManager";
+import PropTypes from "prop-types";
 
 export const MyContext = React.createContext(null);
 
@@ -12,20 +14,41 @@ class Context extends PureComponent {
       editData: null,
       isLoading: false,
       isEditMode: false,
-      isSingleFetch: false
+      isSingleFetch: true
     };
 
     // const setLoading = isLoading => this.setState({ isLoading });
     this.AxiosUtils = new AxiosUtils(this.setLoading, this.props.route);
     this.cancelToken = this.AxiosUtils.getCancelToken();
     this.io = this.AxiosUtils.socket;
+    this.manager = React.createRef(null);
   }
+  static defaultProps = {
+    isViewMode: false
+  };
+  static propTypes = {
+    isViewMode: PropTypes.bool,
+    route: PropTypes.string.isRequired,
+    primaryID: PropTypes.string.isRequired,
+    toastIcon: PropTypes.string.isRequired
+  };
 
   setLoading = isLoading => this.setState({ isLoading });
 
   componentDidMount() {
     this.fetchList();
     this.handleSocket(this.props.isViewMode);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.list.length > 0)
+      if (prevState.list !== this.state.list)
+        this.manager.current = arrayOfObjectsManager(
+          this,
+          this.state.list,
+          "list",
+          this.props.primaryID
+        );
   }
 
   componentWillUnmount() {
@@ -45,13 +68,20 @@ class Context extends PureComponent {
           .then(() => {
             switch (method) {
               case "DELETE":
-                this.handleStateDelete(parseInt(id));
+                this.manager.current.handleStateDelete(parseInt(id));
                 break;
               case "POST":
-                this.handleStateCreate(parseInt(id), JSON.parse(data));
+                this.manager.current.handleStateCreate(
+                  parseInt(id),
+                  JSON.parse(data),
+                  { creation_date: "NOW" }
+                );
                 break;
               case "PATCH":
-                this.handleStateUpdate(parseInt(id), JSON.parse(data));
+                this.manager.current.handleStateUpdate(
+                  parseInt(id),
+                  JSON.parse(data)
+                );
                 break;
               default:
                 console.error(`unknown method ${method}`);
@@ -65,33 +95,10 @@ class Context extends PureComponent {
     });
   }
 
-  handleStateUpdate = (id, data) => {
-    this.setState(state => {
-      return {
-        list: state.list.map(el =>
-          el[this.props.primaryID] === id ? { ...el, ...data } : el
-        )
-      };
-    });
-  };
-
-  handleStateCreate = (id, data) => {
-    const newRow = { unicorn_id: id, ...data, creation_date: "NOW" };
-    this.setState(state => {
-      return { list: [...state.list, newRow] };
-    });
-  };
-
-  handleStateDelete = id => {
-    this.setState(state => {
-      return {
-        list: state.list.filter(data => data.unicorn_id !== id)
-      };
-    });
-  };
-
-  _GetByID = unicorn_id => {
-    const result = this.state.list.find(data => data.unicorn_id === unicorn_id);
+  _GetByID = id => {
+    const result = this.state.list.find(
+      data => data[this.props.primaryID] === id
+    );
     if (result) this.setState({ isEditMode: true, editData: result });
   };
 
@@ -109,21 +116,14 @@ class Context extends PureComponent {
     } else toast.error(`${this.props.toastIcon} ${response.result}`);
   };
 
-  fetchByID = id => {
-    this.AxiosUtils.onGet(id, this.cancelToken)
-      .then(response => {
-        if (response) {
-          return this.state.list.map(el =>
-            el[this.props.primaryID] === id
-              ? { ...el, ...response.data.result }
-              : el
-          );
-        }
-      })
-      .then(list => {
-        this.setState({ list });
+  fetchByID = async id => {
+    const response = await this.AxiosUtils.onGet(id, this.cancelToken);
+    if (response.success) {
+      if (response.result && !response.isCancel) {
+        this.manager.current.handleStateUpdate(id, response.result);
         toast(`${this.props.toastIcon} fetchByID: ${id}`);
-      });
+      } else toast.error(`${this.props.toastIcon} ${response.result}`);
+    }
   };
 
   _UpdateByID = (unicorn_id, data) => {

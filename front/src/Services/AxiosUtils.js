@@ -7,19 +7,6 @@ const AxiosConfig = {
 };
 const SOCKET_API = socketIOClient("http://localhost:8080");
 
-// export const sleep = ms => {
-//   let timeout = null;
-//   const promise = new Promise(resolve => (timeout = setTimeout(resolve, ms)));
-//   return {
-//     timer: promise,
-//     cancel: () => {
-//       console.log("canceling");
-//       return clearTimeout(timeout);
-//     }
-//   };
-//};
-
-
 export const sleep = ms => {
   return new Promise(resolve => (setTimeout(resolve, ms)));
 }
