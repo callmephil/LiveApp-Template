@@ -7,6 +7,8 @@ import PropTypes from "prop-types";
 export const MyContext = React.createContext(null);
 
 class Context extends PureComponent {
+  _isMounted = false;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -21,6 +23,7 @@ class Context extends PureComponent {
     this.AxiosUtils = new AxiosUtils(this.setLoading, this.props.route);
     this.cancelToken = this.AxiosUtils.getCancelToken();
     this.io = this.AxiosUtils.socket;
+    this.manager = null; // State Manager
   }
   static defaultProps = {
     isViewMode: false
@@ -35,8 +38,16 @@ class Context extends PureComponent {
   setLoading = isLoading => this.setState({ isLoading });
 
   componentDidMount() {
+    this._isMounted = true;
     this.fetchList();
     this.handleSocket(this.props.isViewMode);
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+    this.cancelToken.cancel("unmounting");
+    this.io.off(`/api/${this.props.route}`);
+    this.io.off("ERROR");
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -46,14 +57,9 @@ class Context extends PureComponent {
           this,
           this.state.list,
           "list",
-          this.props.primaryID
+          this.props.primaryID,
+          this._isMounted
         );
-  }
-
-  componentWillUnmount() {
-    this.cancelToken.cancel("unmounting");
-    this.io.off(`/api/${this.props.route}`);
-    this.io.off("ERROR");
   }
 
   handleSocket(isViewMode) {
@@ -65,30 +71,33 @@ class Context extends PureComponent {
       else {
         sleep(1000)
           .then(() => {
-            switch (method) {
-              case "DELETE":
-                this.manager.handleStateDelete(parseInt(id));
-                break;
-              case "POST":
-                this.manager.handleStateCreate(
-                  parseInt(id),
-                  JSON.parse(data),
-                  { creation_date: "NOW" }
-                );
-                break;
-              case "PATCH":
-                this.manager.handleStateUpdate(
-                  parseInt(id),
-                  JSON.parse(data)
-                );
-                break;
-              default:
-                console.error(`unknown method ${method}`);
-            }
+            if (this._isMounted)
+              switch (method) {
+                case "DELETE":
+                  this.manager.handleStateDelete(parseInt(id));
+                  break;
+                case "POST":
+                  this.manager.handleStateCreate(
+                    parseInt(id),
+                    JSON.parse(data),
+                    { creation_date: "NOW" }
+                  );
+                  break;
+                case "PATCH":
+                  this.manager.handleStateUpdate(
+                    parseInt(id),
+                    JSON.parse(data)
+                  );
+                  break;
+                default:
+                  console.error(`unknown method ${method}`);
+              }
           })
           .finally(() => {
-            this.setLoading(false);
-            toast(`${method} ${this.props.toastIcon} ID:${id}`);
+            if (this._isMounted) {
+              this.setLoading(false);
+              toast(`${method} ${this.props.toastIcon} ID:${id}`);
+            }
           });
       }
     });
@@ -110,11 +119,14 @@ class Context extends PureComponent {
     if (response.success) {
       if (response.result && !response.isCancel) {
         sleep(1000).then(() => {
-          this.setState({ list: response.result, isLoading: false });
+          if (this._isMounted)
+            this.setState({ list: response.result, isLoading: false });
+        }).finally(() => {
+        if (this._isMounted) toast(`${this.props.toastIcon} List Loaded`);
         })
-        toast(`${this.props.toastIcon} List Loaded`);
       }
-    } else toast.error(`${this.props.toastIcon} ${response.result}`);
+    } else if (this._isMounted)
+      toast.error(`${this.props.toastIcon} ${response.result}`);
   };
 
   fetchByID = async id => {
@@ -122,13 +134,17 @@ class Context extends PureComponent {
     if (response.success) {
       if (response.result && !response.isCancel) {
         sleep(1000).then(() => {
-          const list = this.manager.handleStateUoC(id, response.result);
-          this.forceUpdate(() => {
-            this.setState({ list, isLoading: false });
-          })
+          if (this._isMounted) {
+            const list = this.manager.handleStateUoC(id, response.result);
+            this.forceUpdate(() => {
+              this.setState({ list, isLoading: false });
+            });
+          }
+        }).finally(() => {
+        if (this._isMounted) toast(`${this.props.toastIcon} fetchByID: ${id}`);
         })
-        toast(`${this.props.toastIcon} fetchByID: ${id}`);
-      } else toast.error(`${this.props.toastIcon} ${response.result}`);
+      } else if (this._isMounted)
+        toast.error(`${this.props.toastIcon} ${response.result}`);
     }
   };
 
@@ -152,7 +168,8 @@ class Context extends PureComponent {
           this,
           [],
           "list",
-          this.props.primaryID
+          this.props.primaryID,
+          this._isMounted
         );
       }
     });
