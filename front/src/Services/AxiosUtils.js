@@ -1,11 +1,12 @@
 import axios from "axios";
 import socketIOClient from "socket.io-client";
 
-const API_URL = "http://localhost:8080/api";
+const { REACT_APP_API_URL, REACT_APP_SOCKET_URL } = process.env;
+const API_URL = REACT_APP_API_URL;
+const SOCKET_API = socketIOClient(REACT_APP_SOCKET_URL);
 const AxiosConfig = {
   headers: { "Content-Type": "application/json; charset=utf-8" }
 };
-const SOCKET_API = socketIOClient("http://localhost:8080");
 
 const handleCatch = err => {
   if (axios.isCancel(err)) {
