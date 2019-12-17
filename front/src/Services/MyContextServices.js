@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import AxiosUtils from "./AxiosUtils";
 import { arrayOfObjectsManager } from "../Utils/StateManager";
 import PropTypes from "prop-types";
+import { setCancelTimeout } from "../Utils/Delayer";
 
 export const MyContext = React.createContext(null);
 
@@ -18,7 +19,8 @@ class Context extends PureComponent {
     };
 
     // const setLoading = isLoading => this.setState({ isLoading });
-    this.AxiosUtils = new AxiosUtils(this.setLoading, this.props.route);
+    this.refTimeout = React.createRef();
+    this.AxiosUtils = new AxiosUtils(this.setLoading, this.props.route, this.refTimeout);
     this.cancelToken = this.AxiosUtils.getCancelToken();
     this.io = this.AxiosUtils.socket;
     this.manager = null; // State Manager
@@ -42,6 +44,7 @@ class Context extends PureComponent {
 
   componentWillUnmount() {
     this.cancelToken.cancel("unmounting");
+    setCancelTimeout(this.refTimeout);
     this.io.off(`/api/${this.props.route}`);
     this.io.off("ERROR");
   }
@@ -119,12 +122,12 @@ class Context extends PureComponent {
     } else toast.error(`${this.props.toastIcon} ${response.result}`);
   };
 
-  _UpdateByID = (unicorn_id, data) => {
-    this.AxiosUtils.onUpdate(unicorn_id, data, this.cancelToken);
+  _UpdateByID = (id, data) => {
+    this.AxiosUtils.onUpdate(id, data, this.cancelToken);
   };
 
-  _DeleteByID = unicorn_id => {
-    this.AxiosUtils.onDelete(unicorn_id, this.cancelToken);
+  _DeleteByID = id => {
+    this.AxiosUtils.onDelete(id, this.cancelToken);
   };
 
   _Create = data => {
