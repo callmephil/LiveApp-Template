@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/LiveApp/static/css/main.a5141a15.chunk.css",
+    "main.js": "/LiveApp/static/js/main.5919fc38.chunk.js",
+    "main.js.map": "/LiveApp/static/js/main.5919fc38.chunk.js.map",
+    "runtime-main.js": "/LiveApp/static/js/runtime-main.640b7b05.js",
+    "runtime-main.js.map": "/LiveApp/static/js/runtime-main.640b7b05.js.map",
+    "static/css/2.6771fd38.chunk.css": "/LiveApp/static/css/2.6771fd38.chunk.css",
+    "static/js/2.0572a61f.chunk.js": "/LiveApp/static/js/2.0572a61f.chunk.js",
+    "static/js/2.0572a61f.chunk.js.map": "/LiveApp/static/js/2.0572a61f.chunk.js.map",
+    "index.html": "/LiveApp/index.html",
+    "precache-manifest.2a541bacfeafccedcbe71195c970f568.js": "/LiveApp/precache-manifest.2a541bacfeafccedcbe71195c970f568.js",
+    "service-worker.js": "/LiveApp/service-worker.js",
+    "static/css/2.6771fd38.chunk.css.map": "/LiveApp/static/css/2.6771fd38.chunk.css.map",
+    "static/css/main.a5141a15.chunk.css.map": "/LiveApp/static/css/main.a5141a15.chunk.css.map",
+    "static/js/2.0572a61f.chunk.js.LICENSE": "/LiveApp/static/js/2.0572a61f.chunk.js.LICENSE"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.640b7b05.js",
+    "static/css/2.6771fd38.chunk.css",
+    "static/js/2.0572a61f.chunk.js",
+    "static/css/main.a5141a15.chunk.css",
+    "static/js/main.5919fc38.chunk.js"
+  ]
+}
