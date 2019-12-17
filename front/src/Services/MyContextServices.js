@@ -102,7 +102,7 @@ class Context extends PureComponent {
     const response = await this.AxiosUtils.onGetAll(null, this.cancelToken);
     if (response.success) {
       if (response.result && !response.isCancel) {
-        this.setState({ list: response.result, isLoading: false }, () => {
+        this.setState({ list: response.result }, () => {
           toast(`${this.props.toastIcon} List Loaded`);
         });
       }
@@ -115,7 +115,7 @@ class Context extends PureComponent {
       if (response.result && !response.isCancel) {
         const list = this.manager.handleStateUoC(id, response.result);
         this.forceUpdate(() => {
-          this.setState({ list, isLoading: false });
+          this.setState({ list });
         });
       }
       toast(`${this.props.toastIcon} fetchByID: ${id}`);

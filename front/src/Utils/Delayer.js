@@ -1,4 +1,14 @@
-export const setSleepState = (ref, setLoading, milliseconds = 3000) => {
+import { debounce } from "lodash";
+
+export const debounceEvent = (ref, _fn, timer = 500, options = null) => {
+  ref.current = debounce(_fn, timer, options);
+  return e => {
+    e.persist();
+    return ref(e);
+  };
+};
+
+export const setSleepState = (ref, setLoading, milliseconds = 1000) => {
   setLoading(true);
   return new Promise(
     resolve => (ref.current = setTimeout(resolve, milliseconds))
