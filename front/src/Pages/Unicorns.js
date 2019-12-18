@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import Table from "../Components/Table/Table";
 import Context, { MyContext } from "../Services/MyContextServices";
+import { setFormDefaultValue } from "../Utils/FormHandler";
+import { debounceEvent } from '../Utils/Delayer';
 
 class UnicornsCreateForm extends Component {
   static contextType = MyContext;
@@ -11,6 +13,8 @@ class UnicornsCreateForm extends Component {
     color: "White",
     creation_date: ""
   };
+  refForm = React.createRef();
+  refDebounce = React.createRef();
 
   handleSumbit = event => {
     event.preventDefault();
@@ -24,13 +28,15 @@ class UnicornsCreateForm extends Component {
 
   handleReset = event => {
     event.preventDefault();
-    this.setState({
+    const defaultState = {
       unicorn_id: null,
       name: "",
       age: 1,
       color: "White",
       creation_date: ""
-    });
+    };
+    this.setState({ ...defaultState });
+    setFormDefaultValue(defaultState, this.refForm);
     if (this.context.state.isEditMode) this.context._ClearEditMode();
   };
 
@@ -45,20 +51,28 @@ class UnicornsCreateForm extends Component {
     this.toggleEditMode();
   };
 
+  componentWillUnmount = () => {
+    if (this.refDebounce.current)
+      this.refDebounce.current.cancel();
+  }
+
   toggleEditMode = () => {
     const { isEditMode, editData } = this.context.state;
     if (isEditMode)
-      if (editData.unicorn_id !== this.state.unicorn_id)
+      if (editData.unicorn_id !== this.state.unicorn_id) {
         this.setState({ ...editData });
+        setFormDefaultValue(editData, this.refForm);
+      }
   };
 
   render() {
-    const { name, age, color, unicorn_id } = this.state;
+    const { unicorn_id } = this.state;
     const isSubmitOrEditLabel = unicorn_id
       ? `Edit - ID: ${unicorn_id}`
       : "Submit";
     return (
       <form
+        ref={this.refForm}
         className="create-form"
         onSubmit={this.handleSumbit}
         onReset={this.handleReset}
@@ -69,8 +83,7 @@ class UnicornsCreateForm extends Component {
             name="name"
             placeholder="Name..."
             className="form-control"
-            onChange={this.onChangeValue}
-            value={name}
+            onChange={debounceEvent(this.refDebounce, this.onChangeValue)}
             required
           />
         </div>
@@ -78,18 +91,16 @@ class UnicornsCreateForm extends Component {
           <input
             required
             name="age"
-            value={age}
             type="number"
             pattern="[0-9]{1,5}"
             min={1}
             placeholder="Age..."
             className="form-control"
-            onChange={this.onChangeValue}
+            onChange={debounceEvent(this.refDebounce, this.onChangeValue)}
           />
         </div>
         <div className="form-group">
           <select
-            value={color}
             name="color"
             className="form-control"
             onChange={this.onChangeValue}

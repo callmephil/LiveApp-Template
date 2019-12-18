@@ -4,7 +4,7 @@ export const debounceEvent = (ref, _fn, timer = 500, options = null) => {
   ref.current = debounce(_fn, timer, options);
   return e => {
     e.persist();
-    return ref(e);
+    return ref.current(e);
   };
 };
 
