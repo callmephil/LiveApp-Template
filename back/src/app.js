@@ -52,6 +52,10 @@ const server = app.listen(BACK_PORT, () =>
   console.log(`server listening on port ${BACK_PORT}`)
 );
 const io = socketIO.listen(server);
+io.attach(server, {
+  pingInterval: 10000,
+  pingTimeout: 5000,
+});
 app.use((req, res, next) => {
   res["io"] = io;
   next();

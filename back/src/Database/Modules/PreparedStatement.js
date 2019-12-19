@@ -1,4 +1,5 @@
 import { io } from "../../app";
+// import { onlineClients } from '../../index';
 
 const queryList = [
   // Users
@@ -54,6 +55,8 @@ const executeToDatabase = stmt => {
     const handleCatch = (err) => {
       console.error(`[ERROR] PreparedStatement/Execute: ${err.message}`);
       io.sockets.emit("ERROR", err.message);
+      // const reciever = onlineClients.values().next().value;
+      // io.sockets.connected[reciever].emit("ERROR", err.message);
       return null;
       // return {
       //   success: false,
