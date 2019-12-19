@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import Table from "../Components/Table/Table";
 import Context, { MyContext } from "../Services/MyContextServices";
+import { debounceEvent } from "../Utils/Delayer";
+import { setFormDefaultValue } from "../Utils/FormHandler";
 
 class UsersCreateForm extends Component {
   static contextType = MyContext;
@@ -11,6 +13,8 @@ class UsersCreateForm extends Component {
     email: "",
     creation_date: ""
   };
+  refDebounce = React.createRef();
+  refForm = React.createRef();
 
   handleSumbit = event => {
     event.preventDefault();
@@ -24,13 +28,15 @@ class UsersCreateForm extends Component {
 
   handleReset = event => {
     event.preventDefault();
-    this.setState({
+    const obj = {
       user_id: null,
       first_name: "",
       last_name: "",
       email: "",
       creation_date: ""
-    });
+    };
+    this.setState({ ...obj });
+    setFormDefaultValue(this.refForm, obj);
     if (this.context.state.isEditMode) this.context._ClearEditMode();
   };
 
@@ -46,15 +52,19 @@ class UsersCreateForm extends Component {
   toggleEditMode = () => {
     const { isEditMode, editData } = this.context.state;
     if (isEditMode)
-      if (editData.user_id !== this.state.user_id)
+      if (editData.user_id !== this.state.user_id) {
         this.setState({ ...editData });
+        setFormDefaultValue(this.refForm, editData);
+      }
   };
 
   render() {
-    const { first_name, last_name, email, user_id } = this.state;
+    const { user_id } = this.state;
     const isSubmitOrEditLabel = user_id ? `Edit - ID: ${user_id}` : "Submit";
+    console.log('rendering', this.state.first_name, this.state.last_name, this.state.email)
     return (
       <form
+        ref={this.refForm}
         className="create-form"
         onSubmit={this.handleSumbit}
         onReset={this.handleReset}
@@ -66,8 +76,7 @@ class UsersCreateForm extends Component {
             name="first_name"
             placeholder="First Name..."
             className="form-control"
-            onChange={this.onChangeValue}
-            value={first_name}
+            onChange={debounceEvent(this.refDebounce, this.onChangeValue)}
             required
           />
         </div>
@@ -77,10 +86,9 @@ class UsersCreateForm extends Component {
             required
             name="last_name"
             type="text"
-            value={last_name}
             placeholder="Last Name..."
             className="form-control"
-            onChange={this.onChangeValue}
+            onChange={debounceEvent(this.refDebounce, this.onChangeValue)}
           />
         </div>
         <div className="form-group">
@@ -89,10 +97,9 @@ class UsersCreateForm extends Component {
             required
             name="email"
             type="text"
-            value={email}
             placeholder="Email..."
             className="form-control"
-            onChange={this.onChangeValue}
+            onChange={debounceEvent(this.refDebounce, this.onChangeValue)}
           />
         </div>
         <button

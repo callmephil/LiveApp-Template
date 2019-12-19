@@ -23,8 +23,9 @@ Limit the changes to our original server architecture.
 - [x] Database Error Handling.
 - [x] Toast / Feedback.
 - [x] Throttling on C.R.U.D operations
-- [ ] Throttling bug with axios cancelToken and setState
-- [ ] Debounce on forms
+- [x] Throttling bug with axios cancelToken and setState
+- [x] Debounce on forms
 - [ ] Disable/Allow Button on form button.
+- [ ] FormValidation
 - [ ] Testing with sub routes.
 - [ ] Boilerplate on basic state c.r.u.d operations.

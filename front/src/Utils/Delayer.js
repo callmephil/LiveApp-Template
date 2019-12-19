@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 
-export const debounceEvent = (ref, _fn, timer = 500, options = null) => {
+export const debounceEvent = (ref, _fn, timer = 250, options = null) => {
   ref.current = debounce(_fn, timer, options);
   return e => {
     e.persist();

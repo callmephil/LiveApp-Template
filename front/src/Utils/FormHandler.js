@@ -1,19 +1,20 @@
 import ReactDOM from "react-dom";
 import { isEqual } from "lodash";
 
-export const setFormDefaultValue = (obj, ref) => {
-  if (ref && !ref.current) return;
+export const setFormDefaultValue = (ref, obj) => {
+  // if (ref && !ref.current) return;
+  if ((ref && !ref.current) || !obj || !(obj instanceof Object)) return;
 
-  if (!obj || !obj instanceof Object) return;
-
-  const _this = [
+  const nodes = [
+    // @ts-ignore
     ...ReactDOM.findDOMNode(ref.current).getElementsByClassName("form-control")
   ];
 
-  if (_this.length > 0) {
-    _this.forEach(el => {
-      if (el.name in obj) el.value = obj[el.name];
-      else console.error(`Object value for ${el.name} is missing...`);
+
+  if (nodes.length > 0) {
+    nodes.forEach(node => {
+      if (node.name in obj) node.value = obj[node.name];
+      else console.error(`Object value for ${node.name} is missing...`);
     });
   }
 };
@@ -23,3 +24,8 @@ export const compareFormdata = (prevData, currData) => {
   // Implement empty value as well...
   return isEqual(prevData, currData);
 };
+
+
+export const formValidation = () => {
+  return true;
+}

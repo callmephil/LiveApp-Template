@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Table from "../Components/Table/Table";
 import Context, { MyContext } from "../Services/MyContextServices";
 import { setFormDefaultValue } from "../Utils/FormHandler";
-import { debounceEvent } from '../Utils/Delayer';
+import { debounceEvent } from "../Utils/Delayer";
 
 class UnicornsCreateForm extends Component {
   static contextType = MyContext;
@@ -36,7 +36,7 @@ class UnicornsCreateForm extends Component {
       creation_date: ""
     };
     this.setState({ ...defaultState });
-    setFormDefaultValue(defaultState, this.refForm);
+    setFormDefaultValue(this.refForm, defaultState);
     if (this.context.state.isEditMode) this.context._ClearEditMode();
   };
 
@@ -52,16 +52,15 @@ class UnicornsCreateForm extends Component {
   };
 
   componentWillUnmount = () => {
-    if (this.refDebounce.current)
-      this.refDebounce.current.cancel();
-  }
+    if (this.refDebounce.current) this.refDebounce.current.cancel();
+  };
 
   toggleEditMode = () => {
     const { isEditMode, editData } = this.context.state;
     if (isEditMode)
       if (editData.unicorn_id !== this.state.unicorn_id) {
         this.setState({ ...editData });
-        setFormDefaultValue(editData, this.refForm);
+        setFormDefaultValue(this.refForm, editData);
       }
   };
 
