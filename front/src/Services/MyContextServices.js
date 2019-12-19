@@ -13,7 +13,7 @@ class Context extends PureComponent {
     this.state = {
       list: [],
       editData: null,
-      isLoading: false,
+      isLoading: true,
       isEditMode: false,
       isSingleFetch: false
     };
@@ -35,7 +35,8 @@ class Context extends PureComponent {
     toastIcon: PropTypes.string.isRequired
   };
 
-  setLoading = isLoading => this.setState({ isLoading });
+  // Prevent Calling the state if the recieved is indifferent
+  setLoading = isLoading => this.state.isLoading !== isLoading ? this.setState({ isLoading }) : null;
 
   componentDidMount() {
     this.fetchList();

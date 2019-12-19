@@ -61,7 +61,6 @@ class UsersCreateForm extends Component {
   render() {
     const { user_id } = this.state;
     const isSubmitOrEditLabel = user_id ? `Edit - ID: ${user_id}` : "Submit";
-    console.log('rendering', this.state.first_name, this.state.last_name, this.state.email)
     return (
       <form
         ref={this.refForm}
