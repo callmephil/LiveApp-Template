@@ -62,6 +62,8 @@ class Context extends PureComponent {
   }
 
   handleSocket(isViewMode) {
+    if (!this.manager)
+      toast.error("A Problem occured, please refresh the page. If the problem persist please call the emergencies");
     this.io.on("ERROR", message => toast.error(message));
     this.io.on(`/api/${this.props.route}`, (method, id, data) => {
       if (this.state.isSingleFetch && method !== "DELETE")
